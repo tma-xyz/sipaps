@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Data Alat - SIPAPS</title>
+    <link rel="icon" type="image/png" href="logo-sipas-transparan.png">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="nav-logo.css">
+</head>
+<body>
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="brand-logo" aria-label="SIPAS - Beranda">
+                    <img src="logo-sipas-transparan.png" alt="Logo SIPAS - Sistem Informasi Peminjaman Alat Praktik Sekolah">
+                </a>
+                <div class="flex space-x-4">
+                    <a href="index.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="dk.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Kategori</a>
+                    <a href="da.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Alat</a>
+                    <a href="ta.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Kelola Data Alat</a>
+                    <a href="p.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Peminjaman</a>
+                    <a href="tp.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium bg-gray-900">Kelola Data Peminjaman</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+        <section class="bg-white border border-slate-200 p-4 sm:p-6 shadow-sm rounded-sm">
+
+            <!-- JUDUL + TOMBOL -->
+            <header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-1 uppercase tracking-wider">
+                        ALAT
+                    </p>
+                    <h2 class="text-xl sm:text-2xl font-bold">
+                        Kelola Data Alat
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Daftar katalog alat SIPAPS.
+                    </p>
+                </div>
+
+                <button onclick="bukaForm()"
+                        class="bg-slate-900 text-white px-4 py-2 rounded text-xs sm:text-sm hover:bg-slate-800 transition">
+                    + Tambah Alat
+                </button>
+
+            </header>
+
+            <div id="formBox" class="hidden bg-slate-50 border border-slate-200 p-4 mb-6 rounded">
+
+                <h3 class="font-bold mb-3">Tambah Alat</h3>
+
+                <form id="formTambah" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1" for="idk">Id.Kategori</label>
+                        <select id="idk" required
+                                class="w-full border px-3 py-2 rounded text-sm bg-white"></select>
+                        <p id="kategoriKosong" class="hidden text-xs text-red-600 mt-1">
+                            Id Kategori tidak tersedia.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1" for="nama">Nama Alat</label>
+                        <input id="nama" required type="text" placeholder="Nama Alat"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1" for="kondisi">Kondisi</label>
+                        <input id="kondisi" required type="text" placeholder="Kondisi"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1" for="stok">Stok</label>
+                        <input id="stok" required type="text" min="0" placeholder="Stok"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1" for="lokasi">Lokasi</label>
+                        <input id="lokasi" required type="text" placeholder="Lokasi"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div class="sm:col-span-2 flex gap-3">
+                        <button type="submit"
+                                class="bg-slate-900 text-white px-4 py-2 rounded text-sm hover:bg-slate-800 transition">
+                            Tambah
+                        </button>
+                        <button type="button" onclick="tutupForm()"
+                                class="border px-4 py-2 rounded text-sm hover:bg-slate-100 transition">
+                            Batal
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- TABEL PRODUK -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white text-xs uppercase">
+                            <th class="p-3">Id.Alat</th>
+                            <th class="p-3">Nama Alat</th>
+                            <th class="p-3">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAlat" class="divide-y divide-slate-200 text-sm"></tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+const API_ALAT = 'http://localhost:3000/api/alat';
+const API_KATEGORI_ALAT = 'http://localhost:3000/api/kategori_alat';
+
+let kategori = [];  
+let listAlat = []; 
+let jumlahAlat = {}; 
+let editId = null;
+
+function esc(t) {
+    return String(t == null ? "" : t)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function tampilAlat() {
+
+    const tabel = document.getElementById("tabelAlat");
+
+    if (listAlat.length === 0) {
+        tabel.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">Belum ada Alat.</td></tr>`;
+        return;
+    }
+
+    tabel.innerHTML = listAlat.map((k, i) => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-3">${esc(k.id_alat)}</td>
+            <td class="p-3 font-semibold text-slate-900">${esc(k.nama_alat)}</td>
+            <td class="p-3 whitespace-nowrap">
+                <button onclick="editAlat(${i})"
+                        class="bg-slate-900 text-white px-3 py-1 rounded text-xs hover:bg-slate-800 transition">
+                    Edit
+                </button>
+                <button onclick="hapusAlat(${i})"
+                        class="border border-red-600 text-red-600 px-3 py-1 rounded text-xs hover:bg-red-50 transition ml-1">
+                    Hapus
+                </button>
+            </td>
+        </tr>
+    `).join("");
+
+}
+
+async function loadKategori() {
+
+    try {
+        const res = await fetch(API_KATEGORI_ALAT);
+        const data = await res.json();
+        kategori = Array.isArray(data) ? data : [];
+        tampilAlat();
+    } catch (e) {
+        console.log("Kategori gagal dimuat:", e);
+        kategori = [];
+        alert("Server tidak bisa dihubungi. Daftar kategori tidak dapat dimuat.");
+    }
+    const selectKategori = document.getElementById("idk");
+    selectKategori.innerHTML = kategori.map(k => 
+    `<option value="${k.id_kategori}">${k.id_kategori} - ${k.nama_kategori || k.nama_alat || k.nama_kategori}</option>`
+    ).join("");
+
+    jumlahAlat = {};
+    try {
+        const res = await fetch(API_ALAT);
+
+        const prods = await res.json();
+if (Array.isArray(prods)) {
+    listAlat = prods;
+    console.log("ISI DARI BACKEND:", listAlat);
+    prods.forEach(p => {
+        jumlahAlat[p.category_id] = (jumlahAlat[p.category_id] || 0) + 1;
+    });
+}
+    } catch (e) {}
+
+    tampilAlat();
+
+}
+
+function bukaForm() {
+    editId = null;
+    document.getElementById("formTambah").reset();
+    document.getElementById("formBox").classList.remove("hidden");
+}
+
+function tutupForm() {
+    document.getElementById("formBox").classList.add("hidden");
+    editId = null;
+}
+
+function editAlat(i) {
+    const k = listAlat[i];
+    editId = k.id_alat; 
+    document.getElementById("idk").value = k.id_kategori;
+    document.getElementById("nama").value = k.nama_alat;
+    document.getElementById("kondisi").value = k.kondisi;
+    document.getElementById("stok").value = k.stok;
+    document.getElementById("lokasi").value = k.lokasi;
+    document.getElementById("formBox").classList.remove("hidden");
+}
+
+document.getElementById("formTambah").addEventListener("submit", async function (e) {
+
+    e.preventDefault();
+
+    const payload = {
+        id_kategori: document.getElementById("idk").value,
+        nama_alat: document.getElementById("nama").value.trim(),
+        kondisi: document.getElementById("kondisi").value.trim(),
+        stok: Number(document.getElementById("stok").value),
+        lokasi: document.getElementById("lokasi").value.trim()
+    };
+
+    if (!payload.nama_alat) return;
+
+    try {
+        const lagiEdit = editId !== null;
+        const res = await fetch(lagiEdit ? API_ALAT + '/' + editId : API_ALAT, {
+            method: lagiEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        let hasil = {};
+        try { hasil = await res.json(); } catch (x) {}
+        if (!res.ok) {
+            alert("Gagal tambah alat: " + (hasil.message || res.status));
+            return;
+        }
+    } catch (err) {
+        alert("Gagal menyimpan: server tidak bisa dihubungi.");
+        return;
+    }
+
+    tutupForm();
+    loadKategori();
+
+});
+
+async function hapusAlat(i) {
+
+    if (!confirm("Yakin mau hapus?")) return;
+
+    const k = listAlat[i];
+
+    try {
+        const res = await fetch(API_ALAT + '/' + k.id_alat, { method: 'DELETE' });
+        if (!res.ok) {
+            let msg = res.status;
+            try { msg = (await res.json()).message || msg; } catch (e) {}
+            alert("Gagal hapus alat: " + msg);
+            return;
+        }
+    } catch (err) {
+        alert("Gagal hapus alat: server tidak bisa dihubungi.");
+        return;
+    }
+
+    loadKategori();
+
+}
+
+loadKategori();
+
+</script>
+
+</body>
+</html>

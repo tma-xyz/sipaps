@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Peminjaman - SIPAPS</title>
+    <link rel="icon" type="image/png" href="logo-sipas-transparan.png">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="nav-logo.css">
+</head>
+<body class="bg-slate-600 min-h-screen flex flex-col">
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="brand-logo" aria-label="SIPAS - Beranda">
+                    <img src="logo-sipas-transparan.png" alt="Logo SIPAS - Sistem Informasi Peminjaman Alat Praktik Sekolah">
+                </a>
+                <div class="flex space-x-4">
+                    <a href="index.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="dk.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Kategori</a>
+                    <a href="da.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Alat</a>
+                    <a href="ta.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Kelola Data Alat</a>
+                    <a href="p.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Peminjaman</a>
+                    <a href="tp.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium bg-gray-900">Kelola Data Peminjaman</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+        <section class="bg-white border border-slate-200 p-4 sm:p-6 shadow-sm rounded-sm">
+
+            <header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-1 uppercase tracking-wider font-semibold">
+                        FORMULIR
+                    </p>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+                        Kelola Data Peminjaman
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Input transaksi baru Dan Perbarui Data Peminjaman.
+                    </p>
+                </div>
+
+                <button onclick="bukaForm()"
+                        class="bg-slate-900 text-white px-4 py-2 rounded text-xs sm:text-sm hover:bg-slate-800 transition">
+                    + Tambah Peminjaman
+                </button>
+
+            </header>
+
+            <div id="formBox" class="hidden bg-slate-50 border border-slate-200 p-4 mb-6 rounded">
+
+                <h3 id="formJudul" class="font-bold mb-3 text-slate-900 text-base">Tambah Peminjaman Baru</h3>
+
+                <form id="formTambah" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="ida">Pilih Alat Praktik *</label>
+                        <select id="ida" required class="w-full border px-3 py-2 rounded text-sm bg-white">
+                            <option value="">-- Pilih Alat --</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="na">Nama Alat</label>
+                        <input id="na" required type="text" placeholder="Nama Alat" readonly
+                               class="w-full border px-3 py-2 rounded text-sm bg-slate-100 text-slate-700">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="nama">Nama Peminjam *</label>
+                        <input id="nama" required type="text" placeholder="Masukkan nama peminjam"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="kelas">Kelas *</label>
+                        <input id="kelas" required type="text" placeholder="Contoh: XI RPL C"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="tgl_pinjam">Tanggal Pinjam *</label>
+                        <input id="tgl_pinjam" required type="date"
+                               class="w-full border px-3 py-2 rounded text-sm bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="tgl_rencana_kembali">Tanggal Rencana Kembali *</label>
+                        <input id="tgl_rencana_kembali" required type="date"
+                               class="w-full border px-3 py-2 rounded text-sm bg-white" onchange="cekPeringatanTerlambat()">
+                        <p id="alertTerlambatForm" class="hidden text-xs text-red-600 font-bold mt-1">
+                            ⚠️ Tanggal rencana kembali sudah lewat dari hari ini!
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="jumlah">Jumlah Unit *</label>
+                        <input id="jumlah" required type="number" min="1" value="1" placeholder="Jumlah"
+                               class="w-full border px-3 py-2 rounded text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-600 font-semibold mb-1" for="status">Status Peminjaman *</label>
+                        <select id="status" required class="w-full border px-3 py-2 rounded text-sm bg-white">
+                            <option value="Dipinjam">Dipinjam</option>
+                            <option value="Dikembalikan">Dikembalikan</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-2 flex gap-3 pt-2">
+                        <button type="submit" id="btnSimpan"
+                                class="bg-slate-900 text-white px-4 py-2 rounded text-sm hover:bg-slate-800 transition">
+                            Simpan Data
+                        </button>
+                        <button type="button" onclick="tutupForm()"
+                                class="border border-slate-300 px-4 py-2 rounded text-sm hover:bg-slate-100 transition">
+                            Batal
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="overflow-x-auto border border-slate-200 rounded">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white text-xs uppercase">
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Nama Peminjam</th>
+                            <th class="p-3">Nama Alat</th>
+                            <th class="p-3">Tanggal Pinjam</th>
+                            <th class="p-3">Tgl Rencana Kembali</th>
+                            <th class="p-3 text-center">Jumlah</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelPeminjaman" class="divide-y divide-slate-200 text-sm"></tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+    const API_PEMINJAMAN = 'http://localhost:3000/api/peminjaman';
+    const API_ALAT = 'http://localhost:3000/api/alat';
+
+    let daftarAlat = [];
+    let listPeminjaman = []; 
+    let editId = null;
+
+    function esc(t) {
+        return String(t == null ? "" : t)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function formatTanggal(tanggal) {
+        if (!tanggal || tanggal === "-" || tanggal === "null") return "-";
+        const parts = String(tanggal).split('T')[0].split('-');
+        if (parts.length === 3) {
+            const date = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+            return date.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                timeZone: "UTC"
+            });
+        }
+        return tanggal;
+    }
+
+    function toInputDateFormat(val) {
+        if (!val) return "";
+        return String(val).split('T')[0];
+    }
+
+    function cekPeringatanTerlambat() {
+        const tglRencana = document.getElementById("tgl_rencana_kembali").value;
+        const alertBox = document.getElementById("alertTerlambatForm");
+        const statusEl = document.getElementById("status");
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        if (tglRencana && tglRencana < todayStr && statusEl.value !== 'Dikembalikan') {
+            alertBox.classList.remove("hidden");
+        } else {
+            alertBox.classList.add("hidden");
+        }
+    }
+
+    function renderStatusBadge(status) {
+        if (status === 'Terlambat') {
+            return `<span class="text-red-600 font-semibold">
+                ⚠️ Terlambat
+            </span>`;
+        } else if (status === 'Dikembalikan') {
+            return `<span style="color: #16a34a; font-weight: 600;">
+                Dikembalikan
+            </span>`;
+        }
+        return `<span class="text-slate-600 font-semibold">
+            Dipinjam
+        </span>`;
+    }
+
+    function tampilPeminjaman() {
+        const tabel = document.getElementById("tabelPeminjaman");
+
+        if (listPeminjaman.length === 0) {
+            tabel.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Belum ada data peminjaman.</td></tr>`;
+            return;
+        }
+
+        tabel.innerHTML = listPeminjaman.map((k, i) => `
+            <tr class="hover:bg-slate-50">
+                <td class="p-3 text-slate-500">${esc(k.id_peminjaman)}</td>
+                <td class="p-3 font-semibold text-slate-900">${esc(k.nama_peminjam)} (${esc(k.kelas)})</td>
+                <td class="p-3 text-slate-800">${esc(k.nama_alat)}</td>
+                <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_pinjam)}</td>
+                <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_rencana_kembali)}</td>
+                <td class="p-3 text-center font-bold text-slate-900">${esc(k.jumlah)}</td>
+                <td class="p-3">${renderStatusBadge(k.status)}</td>
+                <td class="p-3 text-center whitespace-nowrap">
+                    <button onclick="editPeminjaman(${i})"
+                        class="bg-slate-900 text-white px-3 py-1 rounded text-xs hover:bg-slate-800 transition">
+                    Edit
+                </button>
+                                  <button onclick="hapusPeminjaman(${i})"
+                        class="border border-red-600 text-red-600 px-3 py-1 rounded text-xs hover:bg-red-50 transition ml-1">
+                    Hapus
+                </button>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    async function loadPeminjaman() {
+        try {
+            const res = await fetch(API_PEMINJAMAN);
+            const data = await res.json();
+            listPeminjaman = Array.isArray(data) ? data : [];
+        } catch (e) {
+            console.error("Gagal load peminjaman:", e);
+            listPeminjaman = [];
+        }
+
+        try {
+            const resAlat = await fetch(API_ALAT);
+            const dataAlat = await resAlat.json();
+            daftarAlat = Array.isArray(dataAlat) ? dataAlat : [];
+
+            const selectAlat = document.getElementById("ida");
+            selectAlat.innerHTML = '<option value="">-- Pilih Alat --</option>' +
+                daftarAlat.map(k =>
+                    `<option value="${k.id_alat}">${k.nama_alat} (Sisa Stok: ${k.stok})</option>`
+                ).join("");
+        } catch (e) {
+            console.error("Gagal load alat:", e);
+        }
+
+        tampilPeminjaman();
+    }
+
+    function bukaForm() {
+        editId = null;
+        document.getElementById("formTambah").reset();
+        document.getElementById("formJudul").textContent = "Tambah Peminjaman Baru";
+        document.getElementById("btnSimpan").textContent = "Simpan Data";
+        document.getElementById("alertTerlambatForm").classList.add("hidden");
+        
+        document.getElementById("tgl_pinjam").value = new Date().toISOString().split('T')[0];
+        document.getElementById("status").value = "Dipinjam";
+        document.getElementById("formBox").classList.remove("hidden");
+    }
+
+    function tutupForm() {
+        document.getElementById("formBox").classList.add("hidden");
+        document.getElementById("alertTerlambatForm").classList.add("hidden");
+        editId = null;
+    }
+
+    function editPeminjaman(i) {
+        const k = listPeminjaman[i];
+        editId = k.id_peminjaman; 
+        document.getElementById("formJudul").textContent = `Edit Peminjaman #${k.id_peminjaman}`;
+        document.getElementById("btnSimpan").textContent = "Perbarui Data";
+
+        document.getElementById("ida").value = k.id_alat;
+        document.getElementById("na").value = k.nama_alat || "";
+        document.getElementById("nama").value = k.nama_peminjam;
+        document.getElementById("kelas").value = k.kelas;
+        
+        document.getElementById("tgl_pinjam").value = toInputDateFormat(k.tanggal_pinjam);
+        document.getElementById("tgl_rencana_kembali").value = toInputDateFormat(k.tanggal_rencana_kembali);
+        document.getElementById("jumlah").value = k.jumlah;
+        
+        document.getElementById("status").value = k.status === 'Dikembalikan' ? 'Dikembalikan' : 'Dipinjam';
+        
+        document.getElementById("formBox").classList.remove("hidden");
+        cekPeringatanTerlambat();
+    }
+
+    document.getElementById("formTambah").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const payload = {
+            id_alat: document.getElementById("ida").value,
+            nama_alat: document.getElementById("na").value,
+            nama_peminjam: document.getElementById("nama").value.trim(),
+            kelas: document.getElementById("kelas").value.trim(),
+            tanggal_pinjam: document.getElementById("tgl_pinjam").value,
+            tanggal_rencana_kembali: document.getElementById("tgl_rencana_kembali").value,
+            jumlah: Number(document.getElementById("jumlah").value),
+            status: document.getElementById("status").value,
+            tanggal_kembali: document.getElementById("status").value === 'Dikembalikan' ? new Date().toISOString().split('T')[0] : null
+        };
+
+        if (!payload.id_alat || !payload.nama_peminjam || !payload.tanggal_rencana_kembali) {
+            alert("Harap lengkapi semua data wajib!");
+            return;
+        }
+
+        try {
+            const lagiEdit = editId !== null;
+            const res = await fetch(lagiEdit ? `${API_PEMINJAMAN}/${editId}` : API_PEMINJAMAN, {
+                method: lagiEdit ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            let hasil = {};
+            try { hasil = await res.json(); } catch (x) {}
+            if (!res.ok) {
+                alert("Gagal menyimpan peminjaman: " + (hasil.message || res.status));
+                return;
+            }
+            alert(lagiEdit ? "Data peminjaman berhasil diperbarui!" : "Peminjaman berhasil dicatat!");
+        } catch (err) {
+            alert("Gagal menyimpan: server tidak bisa dihubungi.");
+            return;
+        }
+
+        tutupForm();
+        loadPeminjaman();
+    });
+
+    async function kembalikanBarang(id, nama) {
+        if (!confirm(`Konfirmasi pengembalian alat untuk ${nama}? Stok alat akan otomatis ditambahkan kembali.`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_PEMINJAMAN}/${id}/kembalikan`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const hasil = await res.json();
+            if (!res.ok) {
+                alert("Gagal mengembalikan barang: " + (hasil.message || res.status));
+                return;
+            }
+            alert(hasil.message || "Barang berhasil dikembalikan!");
+            loadPeminjaman();
+        } catch (err) {
+            alert("Gagal menghubungi server backend.");
+        }
+    }
+
+    async function hapusPeminjaman(i) {
+        if (!confirm("Yakin mau menghapus data transaksi ini?")) return;
+
+        const k = listPeminjaman[i];
+
+        try {
+            const res = await fetch(API_PEMINJAMAN + '/' + k.id_peminjaman, { method: 'DELETE' });
+            if (!res.ok) {
+                let msg = res.status;
+                try { msg = (await res.json()).message || msg; } catch (e) {}
+                alert("Gagal hapus peminjaman: " + msg);
+                return;
+            }
+        } catch (err) {
+            alert("Gagal hapus peminjaman: server tidak bisa dihubungi.");
+            return;
+        }
+
+        loadPeminjaman();
+    }
+
+    document.getElementById("ida").addEventListener("change", function() {
+        const alat = daftarAlat.find(k => k.id_alat == this.value);
+        document.getElementById("na").value = alat ? alat.nama_alat : "";
+    });
+
+    loadPeminjaman();
+    </script>
+</body>
+</html>

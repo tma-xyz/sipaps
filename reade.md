@@ -1,0 +1,1 @@
+https://tma-xyz.github.io/sipaps/frontend/index.html

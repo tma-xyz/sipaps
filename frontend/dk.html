@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Kategori - SIPAPS</title>
+    <link rel="icon" type="image/png" href="logo-sipas-transparan.png">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="nav-logo.css">
+</head>
+<body>
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="brand-logo" aria-label="SIPAS - Beranda">
+                    <img src="logo-sipas-transparan.png" alt="Logo SIPAS - Sistem Informasi Peminjaman Alat Praktik Sekolah">
+                </a>
+                <div class="flex space-x-4">
+                    <a href="index.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="dk.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Kategori</a>
+                    <a href="da.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Alat</a>
+                    <a href="ta.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Kelola Data Alat</a>
+                    <a href="p.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Peminjaman</a>
+                    <a href="tp.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium bg-gray-900">Kelola Data Peminjaman</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+        <section class="bg-white border border-slate-200 p-4 sm:p-6 shadow-sm rounded-sm">
+
+            <header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-1 uppercase tracking-wider">
+                        KATEGORI
+                    </p>
+                    <h2 class="text-xl sm:text-2xl font-bold">
+                        Data Kategori
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Daftar kategori Alat.
+                    </p>
+                </div>
+            </div>
+
+            </header>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white text-xs uppercase">
+                            <th class="p-3">Id.Kategori</th>
+                            <th class="p-3">Nama Kategori</th>
+                            <th class="p-3">Deskripsi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelKategori" class="divide-y divide-slate-200 text-sm"></tbody>
+                </table>
+            </div>
+
+            </section>
+            </main>
+<script>
+
+const API_KATEGORI_ALAT = 'http://localhost:3000/api/kategori_alat';
+
+let listKategori = []
+
+function esc(t) {
+    return String(t == null ? "" : t)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function tampilKategori() {
+
+    const tabel = document.getElementById("tabelKategori");
+
+    if (listKategori.length === 0) {
+        tabel.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">Belum ada Kategori Alat.</td></tr>`;
+        return;
+    }
+
+    tabel.innerHTML = listKategori.map((k, i) => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-3">${esc(k.id_kategori)}</td>
+            <td class="p-3 font-semibold text-slate-900">${esc(k.nama_kategori)}</td>
+            <td class="p-3 font-semimedium text-slate-900">${esc(k.deskripsi)}</td>
+        </tr>
+    `).join("");
+
+}
+
+async function loadKategori() {
+
+    try {
+        const res = await fetch(API_KATEGORI_ALAT);
+        const data = await res.json();
+        listKategori = Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error("Error load kategori", err);
+    }
+
+    tampilKategori();
+
+}
+
+loadKategori();
+
+</script>
+</body>
+</html>

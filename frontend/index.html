@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SIPAPS</title>
+    <link rel="icon" type="image/png" href="logo-sipas-transparan.png">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="nav-logo.css">
+</head>
+<body>
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="brand-logo" aria-label="SIPAS - Beranda">
+                    <img src="logo-sipas-transparan.png" alt="Logo SIPAS - Sistem Informasi Peminjaman Alat Praktik Sekolah">
+                </a>
+                <div class="flex space-x-4">
+                    <a href="index.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="dk.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Kategori</a>
+                    <a href="da.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Alat</a>
+                    <a href="ta.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Kelola Data Alat</a>
+                    <a href="p.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Peminjaman</a>
+                    <a href="tp.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium bg-gray-900">Kelola Data Peminjaman</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+   
+    <!-- KONTEN -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+        <section class="bg-white border border-slate-200 p-4 sm:p-6 lg:p-8 shadow-sm rounded-sm">
+
+            <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    
+                    <div>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-1 uppercase tracking-wider font-semibold">
+                        DASHBOARD SIPAPS
+                    </p>
+                    <h2 id="welcomeHeading" class="text-2xl sm:text-3xl font-bold text-slate-900">
+                        Selamat Datang Di SIPAPS!
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Sistem Informasi Peminjaman Alat Praktik Sekolah.
+                    </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATISTIK REALTIME -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+
+                <article class="border border-slate-200 bg-slate-50 p-5 rounded hover:shadow-md transition">
+                    <p class="text-sm text-slate-500 font-medium">
+                        Total Jenis Alat
+                    </p>
+                    <h3 id="statTotalAlat" class="text-3xl font-bold text-slate-900 mt-2">
+                        -
+                    </h3>
+                    <p id="statTotalUnit" class="text-xs text-blue-600 mt-2 font-medium">
+                        Memuat data stok...
+                    </p>
+                </article>
+
+                <article class="border border-slate-200 bg-slate-50 p-5 rounded hover:shadow-md transition">
+                    <p class="text-sm text-slate-500 font-medium">
+                        Total Kategori
+                    </p>
+                    <h3 id="statTotalKategori" class="text-3xl font-bold text-slate-900 mt-2">
+                        -
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-2">
+                        Kategori Alat Praktik
+                    </p>
+                </article>
+
+                <article class="border border-slate-200 bg-slate-50 p-5 rounded hover:shadow-md transition">
+                    <p class="text-sm text-slate-500 font-medium">
+                        Sedang Dipinjam
+                    </p>
+                    <h3 id="statDipinjam" class="text-3xl font-bold text-amber-600 mt-2">
+                        -
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-2">
+                        Dalam masa peminjaman
+                    </p>
+                </article>
+
+                <article class="border border-slate-200 bg-slate-50 p-5 rounded hover:shadow-md transition">
+                    <p class="text-sm text-slate-500 font-medium">
+                        Terlambat Kembali
+                    </p>
+                    <h3 id="statTerlambat" class="text-3xl font-bold text-red-600 mt-2">
+                        -
+                    </h3>
+                    <p class="text-xs text-red-500 font-medium mt-2">
+                        Perlu segera dikembalikan!
+                    </p>
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+    const API_STATS = 'http://localhost:3000/api/stats';
+
+    function esc(t) {
+        return String(t == null ? "" : t)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function formatTanggal(tanggal) {
+        if (!tanggal || tanggal === "-" || tanggal === "null") return "-";
+        const parts = String(tanggal).split('T')[0].split('-');
+        if (parts.length === 3) {
+            const date = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+            return date.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                timeZone: "UTC"
+            });
+        }
+        return tanggal;
+    }
+
+    function renderBadgeStatus(status) {
+        if (status === 'Terlambat') {
+            return `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded text-xs font-bold border border-red-300 animate-pulse">⚠️ Terlambat</span>`;
+        } else if (status === 'Dikembalikan') {
+            return `<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded text-xs font-semibold border border-green-300">Dikembalikan</span>`;
+        }
+        return `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded text-xs font-semibold border border-amber-300">Dipinjam</span>`;
+    }
+
+    async function loadDashboard() {
+        try {
+            const res = await fetch(API_STATS);
+            if (!res.ok) throw new Error("Status " + res.status);
+            const data = await res.json();
+
+            // Set data statistik dari database
+            document.getElementById("statTotalAlat").textContent = data.total_alat;
+            document.getElementById("statTotalUnit").textContent = `${data.total_unit_alat} unit fisik tersedia`;
+            document.getElementById("statTotalKategori").textContent = data.total_kategori;
+            document.getElementById("statDipinjam").textContent = data.dipinjam;
+            document.getElementById("statTerlambat").textContent = data.terlambat;
+
+            const tbody = document.getElementById("tabelTerbaru");
+            if (!data.latest_peminjaman || data.latest_peminjaman.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada riwayat peminjaman.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.latest_peminjaman.map(k => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-semibold text-slate-900">${esc(k.nama_peminjam)}</td>
+                    <td class="p-3 text-slate-700">${esc(k.kelas)}</td>
+                    <td class="p-3 text-slate-800">${esc(k.nama_alat)}</td>
+                    <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_pinjam)}</td>
+                    <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_rencana_kembali)}</td>
+                    <td class="p-3 font-semibold text-slate-900">${esc(k.jumlah)}</td>
+                    <td class="p-3">${renderBadgeStatus(k.status)}</td>
+                </tr>
+            `).join("");
+
+        } catch (err) {
+            console.error("Gagal load statistik:", err);
+            document.getElementById("tabelTerbaru").innerHTML = `
+                <tr><td colspan="7" class="p-6 text-center text-red-600 font-semibold">
+                    Gagal mengambil data dari database backend (Port 3000). Pastikan server backend sedang aktif!
+                </td></tr>
+            `;
+        }
+    }
+
+    loadDashboard();
+    </script>
+</body>
+</html>

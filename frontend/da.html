@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Alat - SIPAPS</title>
+    <link rel="icon" type="image/png" href="logo-sipas-transparan.png">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="nav-logo.css">
+</head>
+<body>
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="brand-logo" aria-label="SIPAS - Beranda">
+                    <img src="logo-sipas-transparan.png" alt="Logo SIPAS - Sistem Informasi Peminjaman Alat Praktik Sekolah">
+                </a>
+                <div class="flex space-x-4">
+                    <a href="index.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="dk.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Kategori</a>
+                    <a href="da.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Alat</a>
+                    <a href="ta.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Kelola Data Alat</a>
+                    <a href="p.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Peminjaman</a>
+                    <a href="tp.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium bg-gray-900">Kelola Data Peminjaman</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+        <section class="bg-white border border-slate-200 p-4 sm:p-6 shadow-sm rounded-sm">
+
+            <header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-1 uppercase tracking-wider">
+                        ALAT
+                    </p>
+                    <h2 class="text-xl sm:text-2xl font-bold">
+                        Data Alat
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Daftar Alat.
+                    </p>
+                </div>
+            </div>
+                <a href = 'ta.html'
+                        class="bg-slate-900 text-white px-4 py-2 rounded text-xs sm:text-sm hover:bg-slate-800 transition">
+                 + Kelola Data Alat
+                </a>
+
+            </header>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white text-xs uppercase">
+                            <th class="p-3">Id.Alat</th>
+                            <th class="p-3">Id.Kategori</th>
+                            <th class="p-3">Nama Alat</th>
+                            <th class="p-3">Kondisi</th>
+                            <th class="p-3">Stok</th>
+                            <th class="p-3">Lokasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAlat" class="divide-y divide-slate-200 text-sm"></tbody>
+                </table>
+            </div>
+
+            </section>
+            </main>
+
+<script>
+const API_ALAT = 'http://localhost:3000/api/alat';
+
+let listAlat = []
+
+function esc(t) {
+    return String(t == null ? "" : t)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function tampilAlat() {
+
+    const tabel = document.getElementById("tabelAlat");
+
+    if (listAlat.length === 0) {
+        tabel.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">Belum ada Alat.</td></tr>`;
+        return;
+    }
+
+    tabel.innerHTML = listAlat.map((k, i) => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-3">${esc(k.id_alat)}</td>
+            <td class="p-3">${esc(k.id_kategori)}</td>
+            <td class="p-3 font-semibold text-slate-900">${esc(k.nama_alat)}</td>
+            <td class="p-3 font-semimedium text-slate-900">${esc(k.kondisi)}</td>
+            <td class="p-3 font-semimedium text-slate-900">${esc(k.stok)}</td>
+            <td class="p-3 font-semimedium text-slate-900">${esc(k.lokasi)}</td>
+        </tr>
+    `).join("");
+
+}
+
+async function loadAlat() {
+
+    try {
+        const res = await fetch(API_ALAT);
+        const data = await res.json();
+        listAlat = Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error("Error load alat", err);
+    }
+
+    tampilAlat();
+
+}
+
+loadAlat();
+
+</script>
+</body>
+</html>

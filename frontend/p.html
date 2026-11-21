@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Peminjaman - SIPAPS</title>
+    <link rel="icon" type="image/png" href="logo-sipas-transparan.png">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="nav-logo.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="brand-logo" aria-label="SIPAS - Beranda">
+                    <img src="logo-sipas-transparan.png" alt="Logo SIPAS - Sistem Informasi Peminjaman Alat Praktik Sekolah">
+                </a>
+                <div class="flex space-x-4">
+                    <a href="index.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="dk.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Kategori</a>
+                    <a href="da.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Data Alat</a>
+                    <a href="ta.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Kelola Data Alat</a>
+                    <a href="p.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Peminjaman</a>
+                    <a href="tp.html" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium bg-gray-900">Kelola Data Peminjaman</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-1 p-4 sm:p-6 lg:p-8">
+
+        <section class="bg-white border border-slate-200 p-4 sm:p-6 shadow-sm rounded-sm">
+
+            <header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-1 uppercase tracking-wider font-semibold">
+                        PEMINJAMAN
+                    </p>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+                        Data Peminjaman
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Daftar riwayat dan status peminjaman alat praktik sekolah.
+                    </p>
+                </div>
+                <a href="tp.html" class="bg-slate-900 text-white px-4 py-2 rounded text-xs sm:text-sm hover:bg-slate-800 transition inline-block">
+                    + Kelola Data Peminjaman 
+                </a>
+
+            </header>
+
+            <div class="overflow-x-auto border border-slate-200 rounded">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white text-xs uppercase">
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Nama Peminjam</th>
+                            <th class="p-3">Kelas</th>
+                            <th class="p-3">Nama Alat</th>
+                            <th class="p-3">Tanggal Pinjam</th>
+                            <th class="p-3">Tgl Rencana Kembali</th>
+                            <th class="p-3">Tanggal Kembali</th>
+                            <th class="p-3 text-center">Jumlah</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelPeminjaman" class="divide-y divide-slate-200 text-sm"></tbody>
+                </table>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+    const API_PEMINJAMAN = 'http://localhost:3000/api/peminjaman';
+
+    let listPeminjaman = [];
+
+    function esc(t) {
+        return String(t == null ? "" : t)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function formatTanggal(tanggal) {
+        if (!tanggal || tanggal === "-" || tanggal === "null") return "-";
+        
+        const parts = String(tanggal).split('T')[0].split('-');
+        if (parts.length === 3) {
+            const thn = Number(parts[0]);
+            const bln = Number(parts[1]) - 1;
+            const tgl = Number(parts[2]);
+            const date = new Date(Date.UTC(thn, bln, tgl));
+            
+            return date.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+                timeZone: "UTC"
+            });
+        }
+        return tanggal;
+    }
+
+    function renderStatusBadge(status) {
+        if (status === 'Terlambat') {
+            return `<span class="text-red-600 font-semibold">
+                ⚠️ Terlambat
+            </span>`;
+        } else if (status === 'Dikembalikan') {
+            return `<span style="color: #16a34a; font-weight: 600;">
+                Dikembalikan
+            </span>`;
+        }
+        return `<span class="text-amber-600 font-semibold">
+            Dipinjam
+        </span>`;
+    }
+
+    function tampilPeminjaman() {
+        const tabel = document.getElementById("tabelPeminjaman");
+
+        if (listPeminjaman.length === 0) {
+            tabel.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Belum ada data peminjaman.</td></tr>`;
+            return;
+        }
+
+        tabel.innerHTML = listPeminjaman.map((k, i) => `
+            <tr class="hover:bg-slate-50">
+                <td class="p-3 text-slate-500">${esc(k.id_peminjaman)}</td>
+                <td class="p-3 font-semibold text-slate-900">${esc(k.nama_peminjam)}</td>
+                <td class="p-3">${esc(k.kelas)}</td>
+                <td class="p-3 font-medium text-slate-800">${esc(k.nama_alat)}</td>
+                <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_pinjam)}</td>
+                <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_rencana_kembali)}</td>
+                <td class="p-3 text-slate-600">${formatTanggal(k.tanggal_kembali)}</td>
+                <td class="p-3 text-center font-bold text-slate-900">${esc(k.jumlah)}</td>
+                <td class="p-3">${renderStatusBadge(k.status)}</td>
+                <td class="p-3 text-center whitespace-nowrap">
+                    ${(k.status === 'Dipinjam' || k.status === 'Terlambat') ? `
+<button onclick="kembalikanBarang(${k.id_peminjaman}, '${esc(k.nama_peminjam)}')"
+    class="!bg-green-600 hover:!bg-green-700 !text-white px-3 py-1.5 rounded text-xs font-bold mr-1 shadow-md border border-green-700">
+    Kembalikan
+</button>
+                    ` : `
+                        <span class="text-xs text-slate-400 italic">Selesai</span>
+                    `}
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    async function loadPeminjaman() {
+        try {
+            const res = await fetch(API_PEMINJAMAN);
+            const data = await res.json();
+            listPeminjaman = Array.isArray(data) ? data : [];
+        } catch (err) {
+            console.error("Error load peminjaman", err);
+            listPeminjaman = [];
+        }
+        tampilPeminjaman();
+    }
+
+    async function kembalikanBarang(id, nama) {
+        if (!confirm(`Konfirmasi pengembalian alat untuk ${nama}? Stok alat akan otomatis ditambahkan kembali.`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_PEMINJAMAN}/${id}/kembalikan`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const hasil = await res.json();
+            if (!res.ok) {
+                alert("Gagal mengembalikan barang: " + (hasil.message || res.status));
+                return;
+            }
+            alert(hasil.message || "Barang berhasil dikembalikan!");
+            loadPeminjaman();
+        } catch (err) {
+            alert("Gagal menghubungi server backend.");
+        }
+    }
+
+    loadPeminjaman();
+    </script>
+</body>
+</html>

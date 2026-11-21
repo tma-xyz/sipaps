@@ -1,0 +1,10 @@
+nav .brand-logo {
+    display: inline-flex;
+    align-items: center;
+}
+nav .brand-logo img {
+    height: 64px;
+    width: auto;
+    display: block;
+    background: transparent;
+}
